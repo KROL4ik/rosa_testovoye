@@ -17,6 +17,7 @@
     const customBlock = document.getElementById('customTypeBlock');
     const duplicateWarning = document.getElementById('duplicateWarning');
     const formErrorAlert = document.getElementById('formErrorAlert');
+    const cancelBtn = document.getElementById('cancelRequestBtn');
     const submitBtn = document.getElementById('submitRequestBtn');
     const pageAlert = document.getElementById('pageAlert');
     const modalEl = document.getElementById('createRequestModal');
@@ -39,10 +40,26 @@
         formErrorAlert.classList.remove('d-none');
     }
 
+    function setNormalButtonStyles() {
+        cancelBtn.classList.remove('btn-primary');
+        cancelBtn.classList.add('btn-secondary');
+        submitBtn.classList.remove('btn-secondary');
+        submitBtn.classList.add('btn-primary');
+        submitBtn.textContent = 'Отправить';
+    }
+
+    function setDuplicateButtonStyles() {
+        cancelBtn.classList.remove('btn-secondary');
+        cancelBtn.classList.add('btn-primary');
+        submitBtn.classList.remove('btn-primary');
+        submitBtn.classList.add('btn-secondary');
+        submitBtn.textContent = 'Всё равно отправить';
+    }
+
     function resetDuplicateFlow() {
         confirmDuplicate = false;
         duplicateWarning.classList.add('d-none');
-        submitBtn.textContent = 'Отправить';
+        setNormalButtonStyles();
     }
 
     function resetForm() {
@@ -174,7 +191,7 @@
                 if (similar.hasSimilarActive) {
                     confirmDuplicate = true;
                     duplicateWarning.classList.remove('d-none');
-                    submitBtn.textContent = 'Всё равно отправить';
+                    setDuplicateButtonStyles();
                     return;
                 }
             }
