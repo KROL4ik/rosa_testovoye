@@ -13,6 +13,11 @@
     const statusLabels = config.statusLabels;
     const statusBadgeClasses = config.statusBadgeClasses;
     const allowedTransitions = config.allowedTransitions;
+    const statusReady = config.statusReady;
+    const statusRejected = config.statusRejected;
+
+    const hideReadyCheckbox = document.getElementById('hideReadyCheckbox');
+    const hideRejectedCheckbox = document.getElementById('hideRejectedCheckbox');
 
     const detailLoading = document.getElementById('detailLoading');
     const detailError = document.getElementById('detailError');
@@ -32,6 +37,7 @@
 
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     let currentRequestId = null;
+    let queueItems = [];
 
     function formatType(details) {
         const name = typeLabels[details.type] || details.type;
@@ -122,18 +128,35 @@
         detailContent.classList.remove('d-none');
     }
 
-    async function loadQueue() {
+    function shouldShowItem(item) {
+        if (hideReadyCheckbox?.checked && item.status === statusReady) {
+            return false;
+        }
+        if (hideRejectedCheckbox?.checked && item.status === statusRejected) {
+            return false;
+        }
+        return true;
+    }
+
+    function renderQueue() {
         const tbody = document.getElementById('queueTableBody');
         const emptyEl = document.getElementById('queueEmpty');
         const tableWrap = document.getElementById('queueTableWrap');
         if (!tbody || !emptyEl || !tableWrap) return;
 
-        const res = await fetch('/api/requests');
-        if (!res.ok) return;
+        const filtered = queueItems.filter(shouldShowItem);
 
-        const items = await res.json();
-        if (!items.length) {
+        if (!queueItems.length) {
             tbody.innerHTML = '';
+            emptyEl.textContent = 'Заявок пока нет.';
+            emptyEl.classList.remove('d-none');
+            tableWrap.classList.add('d-none');
+            return;
+        }
+
+        if (!filtered.length) {
+            tbody.innerHTML = '';
+            emptyEl.textContent = 'Нет заявок по выбранным фильтрам.';
             emptyEl.classList.remove('d-none');
             tableWrap.classList.add('d-none');
             return;
@@ -141,7 +164,7 @@
 
         emptyEl.classList.add('d-none');
         tableWrap.classList.remove('d-none');
-        tbody.innerHTML = items.map(function (item) {
+        tbody.innerHTML = filtered.map(function (item) {
             return '<tr class="js-request-row" data-request-id="' + item.id + '" role="button" style="cursor: pointer;">' +
                 '<td>' + item.id + '</td>' +
                 '<td>' + escapeHtml(item.employeeFullName) + '</td>' +
@@ -151,6 +174,14 @@
                 '<td>' + formatDate(item.createdAtUtc) + '</td>' +
                 '</tr>';
         }).join('');
+    }
+
+    async function loadQueue() {
+        const res = await fetch('/api/requests');
+        if (!res.ok) return;
+
+        queueItems = await res.json();
+        renderQueue();
     }
 
     function escapeHtml(text) {
@@ -223,4 +254,13 @@
 
     saveStatusBtn.addEventListener('click', saveStatus);
     modalEl.addEventListener('hidden.bs.modal', resetDetailView);
+
+    if (hideReadyCheckbox) {
+        hideReadyCheckbox.addEventListener('change', renderQueue);
+    }
+    if (hideRejectedCheckbox) {
+        hideRejectedCheckbox.addEventListener('change', renderQueue);
+    }
+
+    loadQueue();
 })();

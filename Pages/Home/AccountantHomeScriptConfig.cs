@@ -10,6 +10,10 @@ public sealed class AccountantHomeScriptConfig
 
     public int AccountantId { get; init; }
 
+    public int StatusReady { get; init; }
+
+    public int StatusRejected { get; init; }
+
     public Dictionary<int, string> TypeLabels { get; init; } = [];
 
     public Dictionary<int, string> StatusLabels { get; init; } = [];
@@ -22,6 +26,8 @@ public sealed class AccountantHomeScriptConfig
     {
         CustomType = (int)CertificateType.Custom,
         AccountantId = accountantId,
+        StatusReady = (int)RequestStatus.Ready,
+        StatusRejected = (int)RequestStatus.Rejected,
         TypeLabels = Enum.GetValues<CertificateType>()
             .ToDictionary(t => (int)t, CertificateTypeLabels.GetDisplayName),
         StatusLabels = Enum.GetValues<RequestStatus>()
