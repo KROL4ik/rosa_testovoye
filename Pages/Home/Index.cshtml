@@ -1,4 +1,4 @@
-@page
+﻿@page
 @model rosa_testovoye.Pages.Home.IndexModel
 @{
     ViewData["Title"] = "Главная";
@@ -11,64 +11,63 @@
         <p class="text-muted">@Model.UserFullName</p>
     </div>
 
-    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
-    {
-        <div class="alert alert-success col-lg-8 mx-auto">@Model.SuccessMessage</div>
-    }
-
-    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
-    {
-        <div class="alert alert-danger col-lg-8 mx-auto">@Model.ErrorMessage</div>
-    }
+    <div id="pageAlert" class="col-lg-8 mx-auto d-none" role="alert"></div>
 
     @if (Model.IsEmployee)
     {
-        <div class="card col-lg-8 mx-auto shadow-sm">
-            <div class="card-body">
-                <h2 class="h5 card-title mb-4">Новая заявка на справку</h2>
+        <div class="text-center">
+            <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#createRequestModal">
+                Создать заявку
+            </button>
+        </div>
 
-                @if (Model.ShowDuplicateWarning)
-                {
-                    <div class="alert alert-warning">
-                        У вас уже есть активная заявка этого типа справки. Вы всё равно можете отправить новую.
-                    </div>
-                }
+        <div class="modal fade" id="createRequestModal" tabindex="-1" aria-labelledby="createRequestModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <form id="createRequestForm" novalidate data-employee-id="@Model.EmployeeId">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="createRequestModalLabel">Новая заявка на справку</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                        </div>
 
-                <form method="post">
-                    <input type="hidden" asp-for="Role" />
-                    @if (Model.ShowDuplicateWarning)
-                    {
-                        <input type="hidden" asp-for="ConfirmDuplicate" value="true" />
-                    }
+                        <div class="modal-body">
+                            <div id="formErrorAlert" class="alert alert-danger d-none" role="alert"></div>
 
-                    <div class="mb-3">
-                        <label asp-for="Form.Type" class="form-label"></label>
-                        <select asp-for="Form.Type" asp-items="Model.CertificateTypeOptions" class="form-select" id="certificateType"></select>
-                        <span asp-validation-for="Form.Type" class="text-danger"></span>
-                    </div>
+                            <div id="duplicateWarning" class="alert alert-warning d-none">
+                                У вас уже есть активная заявка этого типа справки. Вы всё равно можете отправить новую.
+                            </div>
 
-                    <div class="mb-3" id="customTypeBlock" style="display: none;">
-                        <label asp-for="Form.CustomTypeName" class="form-label"></label>
-                        <input asp-for="Form.CustomTypeName" class="form-control" />
-                        <span asp-validation-for="Form.CustomTypeName" class="text-danger"></span>
-                    </div>
+                            <div class="mb-3">
+                                <label asp-for="Form.Type" class="form-label"></label>
+                                <select asp-for="Form.Type" asp-items="Model.CertificateTypeOptions" class="form-select" id="certificateType"></select>
+                                <span asp-validation-for="Form.Type" class="text-danger"></span>
+                            </div>
 
-                    <div class="mb-3">
-                        <label asp-for="Form.CopiesCount" class="form-label"></label>
-                        <input asp-for="Form.CopiesCount" class="form-control" type="number" min="1" max="100" />
-                        <span asp-validation-for="Form.CopiesCount" class="text-danger"></span>
-                    </div>
+                            <div class="mb-3" id="customTypeBlock" style="display: none;">
+                                <label asp-for="Form.CustomTypeName" class="form-label"></label>
+                                <input asp-for="Form.CustomTypeName" class="form-control" id="customTypeName" />
+                                <span asp-validation-for="Form.CustomTypeName" class="text-danger"></span>
+                            </div>
 
-                    <div class="mb-3">
-                        <label asp-for="Form.Reason" class="form-label"></label>
-                        <textarea asp-for="Form.Reason" class="form-control" rows="4"></textarea>
-                        <span asp-validation-for="Form.Reason" class="text-danger"></span>
-                    </div>
+                            <div class="mb-3">
+                                <label asp-for="Form.CopiesCount" class="form-label"></label>
+                                <input asp-for="Form.CopiesCount" class="form-control" type="number" min="1" max="100" id="copiesCount" />
+                                <span asp-validation-for="Form.CopiesCount" class="text-danger"></span>
+                            </div>
 
-                    <button type="submit" class="btn btn-primary">
-                        @(Model.ShowDuplicateWarning ? "Всё равно отправить" : "Отправить заявку")
-                    </button>
-                </form>
+                            <div class="mb-3">
+                                <label asp-for="Form.Reason" class="form-label"></label>
+                                <textarea asp-for="Form.Reason" class="form-control" rows="4" id="reason"></textarea>
+                                <span asp-validation-for="Form.Reason" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                            <button type="submit" class="btn btn-primary" id="submitRequestBtn">Отправить</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     }
@@ -78,16 +77,143 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         (function () {
+            const customType = @((int)rosa_testovoye.Data.Enums.CertificateType.Custom);
+            const form = document.getElementById('createRequestForm');
+            if (!form) return;
+
+            const employeeId = Number(form.dataset.employeeId);
             const typeSelect = document.getElementById('certificateType');
             const customBlock = document.getElementById('customTypeBlock');
-            const customType = @((int)rosa_testovoye.Data.Enums.CertificateType.Custom);
+            const duplicateWarning = document.getElementById('duplicateWarning');
+            const formErrorAlert = document.getElementById('formErrorAlert');
+            const submitBtn = document.getElementById('submitRequestBtn');
+            const pageAlert = document.getElementById('pageAlert');
+            const modalEl = document.getElementById('createRequestModal');
+            const $form = $(form);
+
+            let confirmDuplicate = false;
 
             function toggleCustom() {
+                if (!typeSelect || !customBlock) return;
                 customBlock.style.display = typeSelect.value === String(customType) ? 'block' : 'none';
             }
 
-            typeSelect.addEventListener('change', toggleCustom);
-            toggleCustom();
+            function hideFormError() {
+                formErrorAlert.classList.add('d-none');
+                formErrorAlert.textContent = '';
+            }
+
+            function showFormError(message) {
+                formErrorAlert.textContent = message;
+                formErrorAlert.classList.remove('d-none');
+            }
+
+            function resetDuplicateFlow() {
+                confirmDuplicate = false;
+                duplicateWarning.classList.add('d-none');
+                submitBtn.textContent = 'Отправить';
+            }
+
+            function resetForm() {
+                form.reset();
+                hideFormError();
+                resetDuplicateFlow();
+                $form.find('.text-danger').empty();
+                $form.find('.input-validation-error').removeClass('input-validation-error');
+                toggleCustom();
+            }
+
+            function showPageAlert(message, cssClass) {
+                pageAlert.textContent = message;
+                pageAlert.className = 'col-lg-8 mx-auto alert ' + cssClass;
+                pageAlert.classList.remove('d-none');
+            }
+
+            function setSubmitting(isSubmitting) {
+                submitBtn.disabled = isSubmitting;
+            }
+
+            if (typeSelect) {
+                typeSelect.addEventListener('change', function () {
+                    resetDuplicateFlow();
+                    toggleCustom();
+                });
+                toggleCustom();
+            }
+
+            if (modalEl) {
+                modalEl.addEventListener('hidden.bs.modal', resetForm);
+            }
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                hideFormError();
+
+                if (!$form.valid()) {
+                    return;
+                }
+
+                const type = Number(typeSelect.value);
+                const customTypeName = document.getElementById('customTypeName')?.value?.trim() || null;
+                const copiesCount = Number(document.getElementById('copiesCount').value);
+                const reason = document.getElementById('reason').value.trim();
+
+                if (type === customType && !customTypeName) {
+                    showFormError('Укажите название произвольной справки.');
+                    return;
+                }
+
+                setSubmitting(true);
+
+                try {
+                    if (!confirmDuplicate) {
+                        const similarUrl = `/api/employees/${employeeId}/requests/similar?type=${type}`;
+                        const similarRes = await fetch(similarUrl);
+                        if (!similarRes.ok) {
+                            const err = await similarRes.json().catch(() => ({}));
+                            throw new Error(err.error || 'Не удалось проверить дубликаты.');
+                        }
+                        const similar = await similarRes.json();
+                        if (similar.hasSimilarActive) {
+                            confirmDuplicate = true;
+                            duplicateWarning.classList.remove('d-none');
+                            submitBtn.textContent = 'Всё равно отправить';
+                            return;
+                        }
+                    }
+
+                    const createRes = await fetch('/api/requests', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            employeeId: employeeId,
+                            type: type,
+                            copiesCount: copiesCount,
+                            reason: reason,
+                            customTypeName: customTypeName
+                        })
+                    });
+
+                    const payload = await createRes.json().catch(() => ({}));
+
+                    if (!createRes.ok) {
+                        throw new Error(payload.error || 'Не удалось отправить заявку.');
+                    }
+
+                    let message = `Заявка №${payload.request.id} успешно отправлена.`;
+                    if (payload.similarActiveWarning?.hasSimilarActive) {
+                        message += ' Обратите внимание: у вас уже была активная заявка того же типа.';
+                    }
+
+                    bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                    resetForm();
+                    showPageAlert(message, 'alert-success');
+                } catch (err) {
+                    showFormError(err.message || 'Произошла ошибка.');
+                } finally {
+                    setSubmitting(false);
+                }
+            });
         })();
     </script>
 }
