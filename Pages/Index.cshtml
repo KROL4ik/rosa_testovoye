@@ -1,7 +1,7 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Главная";
+    ViewData["Title"] = "Вход";
 }
 
 <div class="login-landing text-center py-5">
@@ -11,11 +11,11 @@
     </p>
 
     <div class="d-grid gap-3 col-md-5 col-lg-4 mx-auto">
-        <button type="button" class="btn btn-primary btn-lg py-3">
+        <a asp-page="/Home/Index" class="btn btn-primary btn-lg py-3">
             Вход для сотрудника
-        </button>
-        <button type="button" class="btn btn-outline-primary btn-lg py-3">
+        </a>
+        <a asp-page="/Home/Index" class="btn btn-outline-primary btn-lg py-3">
             Вход для бухгалтера
-        </button>
+        </a>
     </div>
 </div>
