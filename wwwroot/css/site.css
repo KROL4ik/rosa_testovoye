@@ -18,7 +18,14 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+  margin: 0;
+}
+
+.login-landing {
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
