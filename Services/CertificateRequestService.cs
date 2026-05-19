@@ -74,6 +74,7 @@ public class CertificateRequestService(AppDbContext context) : ICertificateReque
                 EmployeeId = r.EmployeeId,
                 EmployeeFullName = r.Employee.FullName,
                 Type = r.Type,
+                CustomTypeName = r.CustomTypeName,
                 CopiesCount = r.CopiesCount,
                 Status = r.Status,
                 CreatedAtUtc = r.CreatedAtUtc
@@ -92,6 +93,7 @@ public class CertificateRequestService(AppDbContext context) : ICertificateReque
                 EmployeeId = r.EmployeeId,
                 EmployeeFullName = r.Employee.FullName,
                 Type = r.Type,
+                CustomTypeName = r.CustomTypeName,
                 CopiesCount = r.CopiesCount,
                 Status = r.Status,
                 CreatedAtUtc = r.CreatedAtUtc

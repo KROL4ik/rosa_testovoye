@@ -39,12 +39,12 @@
     let currentRequestId = null;
     let queueItems = [];
 
+    function formatTypeLabel(item) {
+        return RequestGrouping.formatTypeLabel(item, typeLabels, customType);
+    }
+
     function formatType(details) {
-        const name = typeLabels[details.type] || details.type;
-        if (details.type === customType && details.customTypeName) {
-            return name + ' («' + details.customTypeName + '»)';
-        }
-        return name;
+        return formatTypeLabel(details);
     }
 
     function formatEmployee(details) {
@@ -164,16 +164,61 @@
 
         emptyEl.classList.add('d-none');
         tableWrap.classList.remove('d-none');
-        tbody.innerHTML = filtered.map(function (item) {
-            return '<tr class="js-request-row" data-request-id="' + item.id + '" role="button" style="cursor: pointer;">' +
+
+        const groups = RequestGrouping.buildGroups(filtered, function (item) {
+            return RequestGrouping.groupKey(item, customType);
+        });
+        const multiGroups = groups.filter(function (group) { return group.length > 1; });
+        const singles = groups
+            .filter(function (group) { return group.length === 1; })
+            .map(function (group) { return group[0]; })
+            .sort(function (a, b) {
+                return new Date(b.createdAtUtc) - new Date(a.createdAtUtc);
+            });
+
+        function renderRequestRow(item, isGrouped) {
+            return '<tr class="js-request-row' + (isGrouped ? ' table-group-item' : '') +
+                '" data-request-id="' + item.id + '" role="button" style="cursor: pointer;">' +
                 '<td>' + item.id + '</td>' +
                 '<td>' + escapeHtml(item.employeeFullName) + '</td>' +
-                '<td>' + escapeHtml(typeLabels[item.type] || item.type) + '</td>' +
+                '<td>' + escapeHtml(formatTypeLabel(item)) + '</td>' +
                 '<td>' + item.copiesCount + '</td>' +
                 '<td>' + statusBadgeHtml(item.status) + '</td>' +
                 '<td>' + formatDate(item.createdAtUtc) + '</td>' +
                 '</tr>';
-        }).join('');
+        }
+
+        function renderSectionDivider() {
+            return '<tr class="queue-section-divider" aria-hidden="true">' +
+                '<td colspan="6" class="p-0 border-top border-2"></td></tr>';
+        }
+
+        let html = '';
+
+        if (multiGroups.length > 0) {
+            multiGroups.forEach(function (group) {
+                html += '<tr class="table-light">' +
+                    '<td colspan="6" class="fw-semibold small py-2">' +
+                    escapeHtml(group[0].employeeFullName) +
+                    ' · ' + escapeHtml(formatTypeLabel(group[0])) +
+                    ' · <span class="badge text-bg-secondary">' + group.length + ' заявки</span>' +
+                    '</td></tr>';
+                group.forEach(function (item) {
+                    html += renderRequestRow(item, true);
+                });
+            });
+        }
+
+        if (singles.length > 0) {
+            if (multiGroups.length > 0) {
+                html += renderSectionDivider();
+            }
+            singles.forEach(function (item) {
+                html += renderRequestRow(item, false);
+            });
+        }
+
+        tbody.innerHTML = html;
     }
 
     async function loadQueue() {

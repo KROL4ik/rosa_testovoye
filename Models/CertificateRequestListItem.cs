@@ -12,6 +12,8 @@ public class CertificateRequestListItem
 
     public CertificateType Type { get; set; }
 
+    public string? CustomTypeName { get; set; }
+
     public int CopiesCount { get; set; }
 
     public RequestStatus Status { get; set; }

@@ -75,6 +75,14 @@
         });
     }
 
+    function formatTypeLabel(item) {
+        const name = typeLabels[item.type] || item.type;
+        if (item.type === customType && item.customTypeName) {
+            return name + ' («' + item.customTypeName + '»)';
+        }
+        return name;
+    }
+
     function renderRequests(items) {
         const tbody = document.getElementById('myRequestsBody');
         const emptyEl = document.getElementById('requestsEmpty');
@@ -90,19 +98,29 @@
 
         emptyEl.classList.add('d-none');
         tableWrap.classList.remove('d-none');
-        tbody.innerHTML = items.map(function (item) {
+
+        const sorted = items.slice().sort(function (a, b) {
+            return new Date(b.createdAtUtc) - new Date(a.createdAtUtc);
+        });
+
+        tbody.innerHTML = sorted.map(function (item) {
             const status = item.status;
             const badge = statusBadgeClasses[status] || 'text-bg-secondary';
             const statusName = statusLabels[status] || status;
-            const typeName = typeLabels[item.type] || item.type;
             return '<tr>' +
                 '<td>' + item.id + '</td>' +
-                '<td>' + typeName + '</td>' +
+                '<td>' + escapeHtml(formatTypeLabel(item)) + '</td>' +
                 '<td>' + item.copiesCount + '</td>' +
                 '<td><span class="badge ' + badge + '">' + statusName + '</span></td>' +
                 '<td>' + formatDate(item.createdAtUtc) + '</td>' +
                 '</tr>';
         }).join('');
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     async function loadRequests() {
@@ -194,4 +212,6 @@
             setSubmitting(false);
         }
     });
+
+    loadRequests();
 })();
