@@ -10,22 +10,39 @@
             <div class="modal-body">
                 <div id="detailLoading" class="text-muted">Загрузка...</div>
                 <div id="detailError" class="alert alert-danger d-none" role="alert"></div>
-                <dl class="row mb-0 d-none" id="detailContent">
-                    <dt class="col-sm-4">Сотрудник</dt>
-                    <dd class="col-sm-8" id="detailEmployee"></dd>
+                <div class="d-none" id="detailContent">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Сотрудник</dt>
+                        <dd class="col-sm-8" id="detailEmployee"></dd>
 
-                    <dt class="col-sm-4">Вид справки</dt>
-                    <dd class="col-sm-8" id="detailType"></dd>
+                        <dt class="col-sm-4">Вид справки</dt>
+                        <dd class="col-sm-8" id="detailType"></dd>
 
-                    <dt class="col-sm-4">Количество экземпляров</dt>
-                    <dd class="col-sm-8" id="detailCopies"></dd>
+                        <dt class="col-sm-4">Количество экземпляров</dt>
+                        <dd class="col-sm-8" id="detailCopies"></dd>
 
-                    <dt class="col-sm-4">Причина запроса</dt>
-                    <dd class="col-sm-8" id="detailReason"></dd>
+                        <dt class="col-sm-4">Причина запроса</dt>
+                        <dd class="col-sm-8" id="detailReason"></dd>
 
-                    <dt class="col-sm-4">Статус</dt>
-                    <dd class="col-sm-8" id="detailStatus"></dd>
-                </dl>
+                        <dt class="col-sm-4">Статус</dt>
+                        <dd class="col-sm-8" id="detailStatus"></dd>
+                    </dl>
+
+                    <p id="statusTerminalNote" class="text-muted small mt-3 mb-0 d-none">
+                        Заявка завершена, статус изменить нельзя.
+                    </p>
+
+                    <div id="statusChangeSection" class="border-top pt-3 mt-3 d-none">
+                        <h6 class="mb-3">Изменить статус</h6>
+                        <div id="statusChangeSuccess" class="alert alert-success d-none" role="alert"></div>
+                        <div id="statusChangeError" class="alert alert-danger d-none" role="alert"></div>
+                        <div class="mb-3">
+                            <label for="newStatusSelect" class="form-label">Новый статус</label>
+                            <select id="newStatusSelect" class="form-select"></select>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="saveStatusBtn">Сохранить статус</button>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>

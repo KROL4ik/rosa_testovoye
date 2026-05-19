@@ -54,7 +54,7 @@ public class IndexModel(
         else if (IsAccountant)
         {
             RequestQueue = await certificateRequestService.GetQueueAsync();
-            AccountantHomeConfigJson = AccountantHomeScriptConfig.Create().ToJson();
+            AccountantHomeConfigJson = AccountantHomeScriptConfig.Create(EmployeeId).ToJson();
         }
 
         return Page();

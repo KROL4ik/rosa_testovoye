@@ -16,7 +16,7 @@
                     <th>Дата</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="queueTableBody">
                 @foreach (var request in Model.RequestQueue)
                 {
                     <tr class="js-request-row" data-request-id="@request.Id" role="button" style="cursor: pointer;">
