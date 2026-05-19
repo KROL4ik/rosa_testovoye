@@ -222,7 +222,7 @@
     }
 
     async function loadQueue() {
-        const res = await fetch('/api/requests');
+        const res = await fetch('/api/requests', { credentials: 'same-origin' });
         if (!res.ok) return;
 
         queueItems = await res.json();
@@ -240,7 +240,7 @@
         modal.show();
 
         try {
-            const res = await fetch('/api/requests/' + requestId);
+            const res = await fetch('/api/requests/' + requestId, { credentials: 'same-origin' });
             const payload = await res.json().catch(function () { return {}; });
 
             if (!res.ok) {
@@ -261,10 +261,11 @@
 
         try {
             const newStatus = Number(newStatusSelect.value);
-            const url = '/api/requests/' + currentRequestId + '/status?accountantId=' + accountantId;
+            const url = '/api/requests/' + currentRequestId + '/status';
 
             const res = await fetch(url, {
                 method: 'PATCH',
+                credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ newStatus: newStatus })
             });

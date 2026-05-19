@@ -6,6 +6,10 @@ public class Employee
 {
     public int Id { get; set; }
 
+    public required string UserName { get; set; }
+
+    public required string PasswordHash { get; set; }
+
     public required string FullName { get; set; }
 
     public string? Department { get; set; }

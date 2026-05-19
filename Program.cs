@@ -15,8 +15,15 @@ public class Program
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+        builder.Services.AddDistributedMemoryCache();
+        builder.Services.AddSession(options =>
+        {
+            options.Cookie.Name = ".rosa.Session";
+            options.IdleTimeout = TimeSpan.FromHours(8);
+        });
+
         builder.Services.AddScoped<ICertificateRequestService, CertificateRequestService>();
-        builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
         {
@@ -52,6 +59,7 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseRouting();
+        app.UseSession();
         app.UseAuthorization();
         app.MapEmployeeApi();
         app.MapCertificateRequestApi();

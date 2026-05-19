@@ -141,7 +141,7 @@
     }
 
     async function loadRequests() {
-        const res = await fetch('/api/employees/' + employeeId + '/requests');
+        const res = await fetch('/api/employees/' + employeeId + '/requests', { credentials: 'same-origin' });
         if (!res.ok) return;
         const items = await res.json();
         renderRequests(items);
@@ -182,7 +182,7 @@
         try {
             if (!confirmDuplicate) {
                 const similarUrl = '/api/employees/' + employeeId + '/requests/similar?type=' + type;
-                const similarRes = await fetch(similarUrl);
+                const similarRes = await fetch(similarUrl, { credentials: 'same-origin' });
                 if (!similarRes.ok) {
                     const err = await similarRes.json().catch(function () { return {}; });
                     throw new Error(err.error || 'Не удалось проверить дубликаты.');
@@ -198,6 +198,7 @@
 
             const createRes = await fetch('/api/requests', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     employeeId: employeeId,

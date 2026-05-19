@@ -11,47 +11,56 @@ public static class EmployeeEndpoints
         var group = app.MapGroup("/api/employees")
             .WithTags("Employees");
 
-        group.MapGet("/", async (IEmployeeService service) =>
-            await ApiResultExtensions.ExecuteAsync(async () =>
-                Results.Ok(await service.GetAllAsync())));
-
-        group.MapGet("/{id:int}", async (int id, IEmployeeService service) =>
-            await ApiResultExtensions.ExecuteAsync(async () =>
+        group.MapGet("/{employeeId:int}/requests", async (
+            HttpContext http,
+            int employeeId,
+            ICertificateRequestService service) =>
+        {
+            var denied = SessionAuth.RequireLogin(http);
+            if (denied is not null)
             {
-                var employee = await service.GetByIdAsync(id);
-                return employee is null
-                    ? Results.NotFound(new { error = $"Сотрудник #{id} не найден." })
-                    : Results.Ok(employee);
-            }));
+                return denied;
+            }
 
-        group.MapPost("/", async (CreateEmployeeInput input, IEmployeeService service) =>
-            await ApiResultExtensions.ExecuteAsync(async () =>
+            return await ApiResultExtensions.ExecuteAsync(async () =>
             {
-                var created = await service.CreateAsync(input);
-                return Results.Created($"/api/employees/{created.Id}", created);
-            }));
+                var role = SessionAuth.GetRole(http);
+                var userId = SessionAuth.GetEmployeeId(http)!.Value;
 
-        group.MapPut("/{id:int}", async (int id, UpdateEmployeeInput input, IEmployeeService service) =>
-            await ApiResultExtensions.ExecuteAsync(async () =>
-                Results.Ok(await service.UpdateAsync(id, input))));
+                if (role == UserRole.Employee && employeeId != userId)
+                {
+                    return Results.Forbid();
+                }
 
-        group.MapDelete("/{id:int}", async (int id, IEmployeeService service) =>
-            await ApiResultExtensions.ExecuteAsync(async () =>
-            {
-                await service.DeleteAsync(id);
-                return Results.NoContent();
-            }));
-
-        group.MapGet("/{employeeId:int}/requests", async (int employeeId, ICertificateRequestService service) =>
-            await ApiResultExtensions.ExecuteAsync(async () =>
-                Results.Ok(await service.GetByEmployeeAsync(employeeId))));
+                return Results.Ok(await service.GetByEmployeeAsync(employeeId));
+            });
+        });
 
         group.MapGet("/{employeeId:int}/requests/similar", async (
+            HttpContext http,
             int employeeId,
             CertificateType type,
             ICertificateRequestService service) =>
-            await ApiResultExtensions.ExecuteAsync(async () =>
-                Results.Ok(await service.CheckSimilarActiveAsync(employeeId, type))));
+        {
+            var denied = SessionAuth.RequireLogin(http);
+            if (denied is not null)
+            {
+                return denied;
+            }
+
+            return await ApiResultExtensions.ExecuteAsync(async () =>
+            {
+                var role = SessionAuth.GetRole(http);
+                var userId = SessionAuth.GetEmployeeId(http)!.Value;
+
+                if (role == UserRole.Employee && employeeId != userId)
+                {
+                    return Results.Forbid();
+                }
+
+                return Results.Ok(await service.CheckSimilarActiveAsync(employeeId, type));
+            });
+        });
 
         return group;
     }

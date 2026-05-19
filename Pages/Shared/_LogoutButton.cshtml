@@ -1,3 +1,5 @@
 <div class="d-flex justify-content-end mb-3 px-3 px-md-4">
-    <a asp-page="/Index" class="btn btn-danger">Выход</a>
+    <form method="post" asp-page="/Account/Logout" class="d-inline">
+        <button type="submit" class="btn btn-danger">Выход</button>
+    </form>
 </div>

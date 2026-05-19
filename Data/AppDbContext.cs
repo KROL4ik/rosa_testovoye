@@ -17,6 +17,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             entity.HasKey(e => e.Id);
 
+            entity.Property(e => e.UserName)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.HasIndex(e => e.UserName)
+                .IsUnique();
+
+            entity.Property(e => e.PasswordHash)
+                .IsRequired()
+                .HasMaxLength(500);
+
             entity.Property(e => e.FullName)
                 .IsRequired()
                 .HasMaxLength(200);

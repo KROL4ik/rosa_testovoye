@@ -1,21 +1,15 @@
 @page
 @model IndexModel
 @{
-    ViewData["Title"] = "Вход";
+    ViewData["Title"] = "Главная";
 }
 
 <div class="login-landing text-center py-5">
     <h1 class="mb-3">Сервис бухгалтерских справок</h1>
-    <p class="lead text-muted mb-5">
-        Выберите тип входа
-    </p>
+    <p class="lead text-muted mb-5">Вход и регистрация</p>
 
     <div class="d-grid gap-3 col-md-5 col-lg-4 mx-auto">
-        <a asp-page="/Home/Index" asp-route-role="employee" class="btn btn-primary btn-lg py-3">
-            Вход для сотрудника
-        </a>
-        <a asp-page="/Home/Index" asp-route-role="accountant" class="btn btn-outline-primary btn-lg py-3">
-            Вход для бухгалтера
-        </a>
+        <a asp-page="/Account/Login" class="btn btn-primary btn-lg py-3">Вход</a>
+        <a asp-page="/Account/Register" class="btn btn-outline-primary btn-lg py-3">Регистрация</a>
     </div>
 </div>

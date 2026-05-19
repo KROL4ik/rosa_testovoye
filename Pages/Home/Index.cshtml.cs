@@ -8,12 +8,9 @@ using rosa_testovoye.Services;
 namespace rosa_testovoye.Pages.Home;
 
 public class IndexModel(
-    IEmployeeService employeeService,
+    IAuthService authService,
     ICertificateRequestService certificateRequestService) : PageModel
 {
-    [BindProperty(SupportsGet = true)]
-    public string? Role { get; set; }
-
     public string RoleTitle { get; private set; } = string.Empty;
 
     public string UserFullName { get; private set; } = string.Empty;
@@ -36,13 +33,34 @@ public class IndexModel(
 
     public string AccountantHomeConfigJson { get; private set; } = "{}";
 
-    public async Task<IActionResult> OnGetAsync(string? role)
+    public async Task<IActionResult> OnGetAsync()
     {
-        Role ??= role;
-        if (!await LoadUserAsync())
+        if (!UserSession.IsLoggedIn(HttpContext.Session))
         {
-            return RedirectToPage("/Index");
+            return RedirectToPage("/Account/Login");
         }
+
+        var employeeId = UserSession.GetEmployeeId(HttpContext.Session)!.Value;
+        var role = UserSession.GetRole(HttpContext.Session);
+
+        if (role is null)
+        {
+            UserSession.Clear(HttpContext.Session);
+            return RedirectToPage("/Account/Login");
+        }
+
+        var employee = await authService.GetByIdAsync(employeeId);
+        if (employee is null)
+        {
+            UserSession.Clear(HttpContext.Session);
+            return RedirectToPage("/Account/Login");
+        }
+
+        EmployeeId = employee.Id;
+        UserFullName = employee.FullName;
+        IsEmployee = role == UserRole.Employee;
+        IsAccountant = role == UserRole.Accountant;
+        RoleTitle = IsAccountant ? "Бухгалтер" : "Сотрудник";
 
         LoadCertificateTypes();
 
@@ -51,7 +69,7 @@ public class IndexModel(
             MyRequests = await certificateRequestService.GetByEmployeeAsync(EmployeeId);
             EmployeeHomeConfigJson = EmployeeHomeScriptConfig.Create(EmployeeId).ToJson();
         }
-        else if (IsAccountant)
+        else
         {
             RequestQueue = await certificateRequestService.GetQueueAsync();
             AccountantHomeConfigJson = AccountantHomeScriptConfig.Create(EmployeeId).ToJson();
@@ -60,55 +78,10 @@ public class IndexModel(
         return Page();
     }
 
-    private async Task<bool> LoadUserAsync()
-    {
-        if (!TryParseRole(Role, out var userRole))
-        {
-            return false;
-        }
-
-        var employees = await employeeService.GetAllAsync();
-        var user = employees.FirstOrDefault(e => e.Role == userRole);
-        if (user is null)
-        {
-            return false;
-        }
-
-        EmployeeId = user.Id;
-        RoleTitle = userRole == UserRole.Accountant ? "Бухгалтер" : "Сотрудник";
-        UserFullName = user.FullName;
-        IsEmployee = userRole == UserRole.Employee;
-        IsAccountant = userRole == UserRole.Accountant;
-        Role = userRole == UserRole.Accountant ? "accountant" : "employee";
-        return true;
-    }
-
     private void LoadCertificateTypes()
     {
         CertificateTypeOptions = Enum.GetValues<CertificateType>()
             .Select(t => new SelectListItem(CertificateTypeLabels.GetDisplayName(t), ((int)t).ToString()))
             .ToList();
-    }
-
-    private static bool TryParseRole(string? role, out UserRole userRole)
-    {
-        userRole = default;
-        if (string.IsNullOrWhiteSpace(role))
-        {
-            return false;
-        }
-
-        return role.ToLowerInvariant() switch
-        {
-            "employee" => Assign(UserRole.Employee, out userRole),
-            "accountant" => Assign(UserRole.Accountant, out userRole),
-            _ => false
-        };
-    }
-
-    private static bool Assign(UserRole value, out UserRole userRole)
-    {
-        userRole = value;
-        return true;
     }
 }
