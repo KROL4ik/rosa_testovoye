@@ -27,12 +27,6 @@ public static class DbInitializer
             },
             new Employee
             {
-                FullName = "Петрова Анна Сергеевна",
-                Department = "Отдел кадров",
-                Role = UserRole.Employee
-            },
-            new Employee
-            {
                 FullName = "Сидорова Мария Борисовна",
                 Department = "Бухгалтерия",
                 Role = UserRole.Accountant
