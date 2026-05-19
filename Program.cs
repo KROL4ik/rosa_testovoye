@@ -1,33 +1,39 @@
-namespace rosa_testovoye
+using Microsoft.EntityFrameworkCore;
+using rosa_testovoye.Data;
+
+namespace rosa_testovoye;
+
+public class Program
 {
-    public class Program
+    public static async Task Main(string[] args)
     {
-        public static void Main(string[] args)
+        var builder = WebApplication.CreateBuilder(args);
+
+        builder.Services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+        builder.Services.AddRazorPages();
+
+        var app = builder.Build();
+
+        using (var scope = app.Services.CreateScope())
         {
-            var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-            builder.Services.AddRazorPages();
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (!app.Environment.IsDevelopment())
-            {
-                app.UseHsts();
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.MapStaticAssets();
-            app.MapRazorPages()
-               .WithStaticAssets();
-
-            app.Run();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await DbInitializer.InitializeAsync(context);
         }
+
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseHsts();
+        }
+
+        app.UseHttpsRedirection();
+        app.UseRouting();
+        app.UseAuthorization();
+        app.MapStaticAssets();
+        app.MapRazorPages()
+           .WithStaticAssets();
+
+        await app.RunAsync();
     }
 }

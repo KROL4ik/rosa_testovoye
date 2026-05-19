@@ -5,6 +5,10 @@
 # Visual Studio
 .vs/
 
-# App configuration (local / secrets)
-appsettings*.json
-appsettings/
+# App configuration (local overrides)
+appsettings.Development.json
+
+# SQLite
+*.db
+*.db-shm
+*.db-wal
