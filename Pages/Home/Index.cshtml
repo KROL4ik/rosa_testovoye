@@ -1,5 +1,6 @@
 ﻿@page
 @model rosa_testovoye.Pages.Home.IndexModel
+@using rosa_testovoye.Models
 @{
     ViewData["Title"] = "Главная";
 }
@@ -70,6 +71,40 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-lg-10 mx-auto mt-5" id="myRequestsSection">
+            <h2 class="h4 mb-3">Мои заявки</h2>
+            <p id="requestsEmpty" class="text-muted mb-0 @(Model.MyRequests.Count > 0 ? "d-none" : "")">Заявок пока нет.</p>
+            <div class="table-responsive @(Model.MyRequests.Count == 0 ? "d-none" : "")" id="requestsTableWrap">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>№</th>
+                            <th>Вид справки</th>
+                            <th>Экз.</th>
+                            <th>Статус</th>
+                            <th>Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myRequestsBody">
+                        @foreach (var request in Model.MyRequests)
+                        {
+                            <tr>
+                                <td>@request.Id</td>
+                                <td>@CertificateTypeLabels.GetDisplayName(request.Type)</td>
+                                <td>@request.CopiesCount</td>
+                                <td>
+                                    <span class="badge @RequestStatusLabels.GetBadgeClass(request.Status)">
+                                        @RequestStatusLabels.GetDisplayName(request.Status)
+                                    </span>
+                                </td>
+                                <td>@request.CreatedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     }
 </div>
 
@@ -79,9 +114,19 @@
         (function () {
             const customType = @((int)rosa_testovoye.Data.Enums.CertificateType.Custom);
             const form = document.getElementById('createRequestForm');
-            if (!form) return;
+            const requestsSection = document.getElementById('myRequestsSection');
+            if (!form || !requestsSection) return;
 
             const employeeId = Number(form.dataset.employeeId);
+            const typeLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                Enum.GetValues<rosa_testovoye.Data.Enums.CertificateType>()
+                    .ToDictionary(t => (int)t, CertificateTypeLabels.GetDisplayName)));
+            const statusLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                Enum.GetValues<rosa_testovoye.Data.Enums.RequestStatus>()
+                    .ToDictionary(s => (int)s, RequestStatusLabels.GetDisplayName)));
+            const statusBadgeClasses = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                Enum.GetValues<rosa_testovoye.Data.Enums.RequestStatus>()
+                    .ToDictionary(s => (int)s, RequestStatusLabels.GetBadgeClass)));
             const typeSelect = document.getElementById('certificateType');
             const customBlock = document.getElementById('customTypeBlock');
             const duplicateWarning = document.getElementById('duplicateWarning');
@@ -131,6 +176,54 @@
 
             function setSubmitting(isSubmitting) {
                 submitBtn.disabled = isSubmitting;
+            }
+
+            function formatDate(iso) {
+                const date = new Date(iso);
+                return date.toLocaleString('ru-RU', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            function renderRequests(items) {
+                const tbody = document.getElementById('myRequestsBody');
+                const emptyEl = document.getElementById('requestsEmpty');
+                const tableWrap = document.getElementById('requestsTableWrap');
+                if (!tbody || !emptyEl || !tableWrap) return;
+
+                if (!items.length) {
+                    tbody.innerHTML = '';
+                    emptyEl.classList.remove('d-none');
+                    tableWrap.classList.add('d-none');
+                    return;
+                }
+
+                emptyEl.classList.add('d-none');
+                tableWrap.classList.remove('d-none');
+                tbody.innerHTML = items.map(function (item) {
+                    const status = item.status;
+                    const badge = statusBadgeClasses[status] || 'text-bg-secondary';
+                    const statusName = statusLabels[status] || status;
+                    const typeName = typeLabels[item.type] || item.type;
+                    return '<tr>' +
+                        '<td>' + item.id + '</td>' +
+                        '<td>' + typeName + '</td>' +
+                        '<td>' + item.copiesCount + '</td>' +
+                        '<td><span class="badge ' + badge + '">' + statusName + '</span></td>' +
+                        '<td>' + formatDate(item.createdAtUtc) + '</td>' +
+                        '</tr>';
+                }).join('');
+            }
+
+            async function loadRequests() {
+                const res = await fetch('/api/employees/' + employeeId + '/requests');
+                if (!res.ok) return;
+                const items = await res.json();
+                renderRequests(items);
             }
 
             if (typeSelect) {
@@ -208,6 +301,7 @@
                     bootstrap.Modal.getOrCreateInstance(modalEl).hide();
                     resetForm();
                     showPageAlert(message, 'alert-success');
+                    await loadRequests();
                 } catch (err) {
                     showFormError(err.message || 'Произошла ошибка.');
                 } finally {

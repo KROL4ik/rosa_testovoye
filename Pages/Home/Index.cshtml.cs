@@ -7,7 +7,9 @@ using rosa_testovoye.Services;
 
 namespace rosa_testovoye.Pages.Home;
 
-public class IndexModel(IEmployeeService employeeService) : PageModel
+public class IndexModel(
+    IEmployeeService employeeService,
+    ICertificateRequestService certificateRequestService) : PageModel
 {
     [BindProperty(SupportsGet = true)]
     public string? Role { get; set; }
@@ -24,6 +26,8 @@ public class IndexModel(IEmployeeService employeeService) : PageModel
 
     public List<SelectListItem> CertificateTypeOptions { get; private set; } = [];
 
+    public IReadOnlyList<CertificateRequestListItem> MyRequests { get; private set; } = [];
+
     public async Task<IActionResult> OnGetAsync(string? role)
     {
         Role ??= role;
@@ -33,6 +37,12 @@ public class IndexModel(IEmployeeService employeeService) : PageModel
         }
 
         LoadCertificateTypes();
+
+        if (IsEmployee)
+        {
+            MyRequests = await certificateRequestService.GetByEmployeeAsync(EmployeeId);
+        }
+
         return Page();
     }
 
