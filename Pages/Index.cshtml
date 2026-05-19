@@ -11,10 +11,10 @@
     </p>
 
     <div class="d-grid gap-3 col-md-5 col-lg-4 mx-auto">
-        <a asp-page="/Home/Index" class="btn btn-primary btn-lg py-3">
+        <a asp-page="/Home/Index" asp-route-role="employee" class="btn btn-primary btn-lg py-3">
             Вход для сотрудника
         </a>
-        <a asp-page="/Home/Index" class="btn btn-outline-primary btn-lg py-3">
+        <a asp-page="/Home/Index" asp-route-role="accountant" class="btn btn-outline-primary btn-lg py-3">
             Вход для бухгалтера
         </a>
     </div>
