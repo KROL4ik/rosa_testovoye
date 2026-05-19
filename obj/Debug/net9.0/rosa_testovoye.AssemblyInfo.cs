@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("rosa_testovoye")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7ad4c99b5a05dfb41f64c6d0f472ad7d155aff60")]
 [assembly: System.Reflection.AssemblyProductAttribute("rosa_testovoye")]
 [assembly: System.Reflection.AssemblyTitleAttribute("rosa_testovoye")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
