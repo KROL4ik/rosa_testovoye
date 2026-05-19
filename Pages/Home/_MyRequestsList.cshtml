@@ -1,0 +1,36 @@
+@model rosa_testovoye.Pages.Home.IndexModel
+@using rosa_testovoye.Models
+
+<div class="col-lg-10 mx-auto mt-5" id="myRequestsSection">
+    <h2 class="h4 mb-3">Мои заявки</h2>
+    <p id="requestsEmpty" class="text-muted mb-0 @(Model.MyRequests.Count > 0 ? "d-none" : "")">Заявок пока нет.</p>
+    <div class="table-responsive @(Model.MyRequests.Count == 0 ? "d-none" : "")" id="requestsTableWrap">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>№</th>
+                    <th>Вид справки</th>
+                    <th>Экз.</th>
+                    <th>Статус</th>
+                    <th>Дата</th>
+                </tr>
+            </thead>
+            <tbody id="myRequestsBody">
+                @foreach (var request in Model.MyRequests)
+                {
+                    <tr>
+                        <td>@request.Id</td>
+                        <td>@CertificateTypeLabels.GetDisplayName(request.Type)</td>
+                        <td>@request.CopiesCount</td>
+                        <td>
+                            <span class="badge @RequestStatusLabels.GetBadgeClass(request.Status)">
+                                @RequestStatusLabels.GetDisplayName(request.Status)
+                            </span>
+                        </td>
+                        <td>@request.CreatedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -28,6 +28,8 @@ public class IndexModel(
 
     public IReadOnlyList<CertificateRequestListItem> MyRequests { get; private set; } = [];
 
+    public string EmployeeHomeConfigJson { get; private set; } = "{}";
+
     public async Task<IActionResult> OnGetAsync(string? role)
     {
         Role ??= role;
@@ -41,6 +43,7 @@ public class IndexModel(
         if (IsEmployee)
         {
             MyRequests = await certificateRequestService.GetByEmployeeAsync(EmployeeId);
+            EmployeeHomeConfigJson = EmployeeHomeScriptConfig.Create(EmployeeId).ToJson();
         }
 
         return Page();

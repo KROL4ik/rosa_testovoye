@@ -1,0 +1,6 @@
+@model rosa_testovoye.Pages.Home.IndexModel
+
+<script>
+    window.employeeHomeConfig = @Html.Raw(Model.EmployeeHomeConfigJson);
+</script>
+<script src="~/js/home-employee.js" asp-append-version="true"></script>

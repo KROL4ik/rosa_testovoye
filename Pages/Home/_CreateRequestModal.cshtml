@@ -1,0 +1,51 @@
+@model rosa_testovoye.Pages.Home.IndexModel
+
+<div class="modal fade" id="createRequestModal" tabindex="-1" aria-labelledby="createRequestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <form id="createRequestForm" novalidate data-employee-id="@Model.EmployeeId">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createRequestModalLabel">Новая заявка на справку</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="formErrorAlert" class="alert alert-danger d-none" role="alert"></div>
+
+                    <div id="duplicateWarning" class="alert alert-warning d-none">
+                        У вас уже есть активная заявка этого типа справки. Вы всё равно можете отправить новую.
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Form.Type" class="form-label"></label>
+                        <select asp-for="Form.Type" asp-items="Model.CertificateTypeOptions" class="form-select" id="certificateType"></select>
+                        <span asp-validation-for="Form.Type" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3" id="customTypeBlock" style="display: none;">
+                        <label asp-for="Form.CustomTypeName" class="form-label"></label>
+                        <input asp-for="Form.CustomTypeName" class="form-control" id="customTypeName" />
+                        <span asp-validation-for="Form.CustomTypeName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Form.CopiesCount" class="form-label"></label>
+                        <input asp-for="Form.CopiesCount" class="form-control" type="number" min="1" max="100" id="copiesCount" />
+                        <span asp-validation-for="Form.CopiesCount" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Form.Reason" class="form-label"></label>
+                        <textarea asp-for="Form.Reason" class="form-control" rows="4" id="reason"></textarea>
+                        <span asp-validation-for="Form.Reason" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary" id="submitRequestBtn">Отправить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
