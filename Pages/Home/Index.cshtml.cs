@@ -22,6 +22,8 @@ public class IndexModel(
 
     public bool IsEmployee { get; private set; }
 
+    public bool IsAccountant { get; private set; }
+
     public CreateRequestFormModel Form { get; set; } = new();
 
     public List<SelectListItem> CertificateTypeOptions { get; private set; } = [];
@@ -29,6 +31,10 @@ public class IndexModel(
     public IReadOnlyList<CertificateRequestListItem> MyRequests { get; private set; } = [];
 
     public string EmployeeHomeConfigJson { get; private set; } = "{}";
+
+    public IReadOnlyList<CertificateRequestListItem> RequestQueue { get; private set; } = [];
+
+    public string AccountantHomeConfigJson { get; private set; } = "{}";
 
     public async Task<IActionResult> OnGetAsync(string? role)
     {
@@ -44,6 +50,11 @@ public class IndexModel(
         {
             MyRequests = await certificateRequestService.GetByEmployeeAsync(EmployeeId);
             EmployeeHomeConfigJson = EmployeeHomeScriptConfig.Create(EmployeeId).ToJson();
+        }
+        else if (IsAccountant)
+        {
+            RequestQueue = await certificateRequestService.GetQueueAsync();
+            AccountantHomeConfigJson = AccountantHomeScriptConfig.Create().ToJson();
         }
 
         return Page();
@@ -67,6 +78,7 @@ public class IndexModel(
         RoleTitle = userRole == UserRole.Accountant ? "Бухгалтер" : "Сотрудник";
         UserFullName = user.FullName;
         IsEmployee = userRole == UserRole.Employee;
+        IsAccountant = userRole == UserRole.Accountant;
         Role = userRole == UserRole.Accountant ? "accountant" : "employee";
         return true;
     }

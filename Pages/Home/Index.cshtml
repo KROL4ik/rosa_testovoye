@@ -5,6 +5,8 @@
 }
 
 <div class="py-4">
+    <partial name="_LogoutButton" />
+
     <div class="text-center mb-4">
         <h1 class="mb-2">Главная</h1>
         <p class="fs-5 mb-0">@Model.RoleTitle</p>
@@ -24,6 +26,11 @@
         <partial name="_CreateRequestModal" model="Model" />
         <partial name="_MyRequestsList" model="Model" />
     }
+    else if (Model.IsAccountant)
+    {
+        <partial name="_AccountantQueue" model="Model" />
+        <partial name="_AccountantRequestDetailsModal" />
+    }
 </div>
 
 @section Scripts {
@@ -31,5 +38,9 @@
     @if (Model.IsEmployee)
     {
         <partial name="_EmployeeHomeScripts" model="Model" />
+    }
+    else if (Model.IsAccountant)
+    {
+        <partial name="_AccountantHomeScripts" model="Model" />
     }
 }

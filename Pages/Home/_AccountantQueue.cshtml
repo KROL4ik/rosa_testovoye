@@ -1,0 +1,39 @@
+@model rosa_testovoye.Pages.Home.IndexModel
+@using rosa_testovoye.Models
+
+<div class="col-lg-10 mx-auto mt-4" id="accountantQueueSection">
+    <h2 class="h4 mb-3">Очередь заявок</h2>
+    <p class="text-muted @(Model.RequestQueue.Count > 0 ? "d-none" : "")" id="queueEmpty">Заявок пока нет.</p>
+    <div class="table-responsive @(Model.RequestQueue.Count == 0 ? "d-none" : "")" id="queueTableWrap">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>№</th>
+                    <th>Сотрудник</th>
+                    <th>Вид справки</th>
+                    <th>Экз.</th>
+                    <th>Статус</th>
+                    <th>Дата</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var request in Model.RequestQueue)
+                {
+                    <tr class="js-request-row" data-request-id="@request.Id" role="button" style="cursor: pointer;">
+                        <td>@request.Id</td>
+                        <td>@request.EmployeeFullName</td>
+                        <td>@CertificateTypeLabels.GetDisplayName(request.Type)</td>
+                        <td>@request.CopiesCount</td>
+                        <td>
+                            <span class="badge @RequestStatusLabels.GetBadgeClass(request.Status)">
+                                @RequestStatusLabels.GetDisplayName(request.Status)
+                            </span>
+                        </td>
+                        <td>@request.CreatedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <p class="text-muted small mt-2 mb-0">Нажмите на строку, чтобы открыть детали заявки.</p>
+</div>

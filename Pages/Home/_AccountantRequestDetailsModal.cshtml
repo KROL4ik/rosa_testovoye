@@ -1,0 +1,35 @@
+<div class="modal fade" id="requestDetailsModal" tabindex="-1" aria-labelledby="requestDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="requestDetailsModalLabel">
+                    Заявка №<span id="detailRequestId"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <div id="detailLoading" class="text-muted">Загрузка...</div>
+                <div id="detailError" class="alert alert-danger d-none" role="alert"></div>
+                <dl class="row mb-0 d-none" id="detailContent">
+                    <dt class="col-sm-4">Сотрудник</dt>
+                    <dd class="col-sm-8" id="detailEmployee"></dd>
+
+                    <dt class="col-sm-4">Вид справки</dt>
+                    <dd class="col-sm-8" id="detailType"></dd>
+
+                    <dt class="col-sm-4">Количество экземпляров</dt>
+                    <dd class="col-sm-8" id="detailCopies"></dd>
+
+                    <dt class="col-sm-4">Причина запроса</dt>
+                    <dd class="col-sm-8" id="detailReason"></dd>
+
+                    <dt class="col-sm-4">Статус</dt>
+                    <dd class="col-sm-8" id="detailStatus"></dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>

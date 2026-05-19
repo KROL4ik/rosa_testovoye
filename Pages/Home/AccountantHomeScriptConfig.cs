@@ -3,11 +3,9 @@ using rosa_testovoye.Models;
 
 namespace rosa_testovoye.Pages.Home;
 
-public sealed class EmployeeHomeScriptConfig
+public sealed class AccountantHomeScriptConfig
 {
     public int CustomType { get; init; }
-
-    public int EmployeeId { get; init; }
 
     public Dictionary<int, string> TypeLabels { get; init; } = [];
 
@@ -15,10 +13,9 @@ public sealed class EmployeeHomeScriptConfig
 
     public Dictionary<int, string> StatusBadgeClasses { get; init; } = [];
 
-    public static EmployeeHomeScriptConfig Create(int employeeId) => new()
+    public static AccountantHomeScriptConfig Create() => new()
     {
         CustomType = (int)CertificateType.Custom,
-        EmployeeId = employeeId,
         TypeLabels = Enum.GetValues<CertificateType>()
             .ToDictionary(t => (int)t, CertificateTypeLabels.GetDisplayName),
         StatusLabels = Enum.GetValues<RequestStatus>()
