@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using rosa_testovoye.Data;
+using rosa_testovoye.Services;
 
 namespace rosa_testovoye;
 
@@ -12,6 +13,7 @@ public class Program
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+        builder.Services.AddScoped<ICertificateRequestService, CertificateRequestService>();
         builder.Services.AddRazorPages();
 
         var app = builder.Build();
