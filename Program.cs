@@ -12,18 +12,8 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        var dataDirectory = Path.Combine(builder.Environment.ContentRootPath, "Data");
-        Directory.CreateDirectory(dataDirectory);
-        var sqlitePath = Path.Combine(dataDirectory, "rosa.db");
-        var dataProtectionKeys = Path.Combine(dataDirectory, "keys");
-        Directory.CreateDirectory(dataProtectionKeys);
-
-        builder.Services.AddDataProtection()
-            .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeys))
-            .SetApplicationName("rosa_testovoye");
-
         builder.Services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite($"Data Source={sqlitePath}"));
+            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
         builder.Services.AddDistributedMemoryCache();
         builder.Services.AddSession(options =>
@@ -61,8 +51,13 @@ public class Program
             {
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "Сервис справок ORP v1");
             });
-            app.UseHttpsRedirection();
         }
+        else
+        {
+            app.UseHsts();
+        }
+
+        app.UseHttpsRedirection();
         app.UseRouting();
         app.UseSession();
         app.UseAuthorization();
