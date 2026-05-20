@@ -111,9 +111,7 @@ public class CertificateRequestService(AppDbContext context) : ICertificateReque
             .FirstOrDefaultAsync(r => r.Id == requestId);
 
         if (request is null)
-        {
             return null;
-        }
 
         return MapToDetails(request);
     }
@@ -134,14 +132,10 @@ public class CertificateRequestService(AppDbContext context) : ICertificateReque
         var toStatus = input.NewStatus;
 
         if (RequestStatusRules.IsTerminal(fromStatus))
-        {
             throw new InvalidStatusTransitionException(fromStatus, toStatus);
-        }
 
         if (!RequestStatusRules.CanTransition(fromStatus, toStatus))
-        {
             throw new InvalidStatusTransitionException(fromStatus, toStatus);
-        }
 
         var now = DateTime.UtcNow;
         request.Status = toStatus;
@@ -177,9 +171,7 @@ public class CertificateRequestService(AppDbContext context) : ICertificateReque
     private static SimilarRequestWarning ToSimilarWarning(CertificateRequest? similar)
     {
         if (similar is null)
-        {
             return new SimilarRequestWarning { HasSimilarActive = false };
-        }
 
         return new SimilarRequestWarning
         {
@@ -193,29 +185,19 @@ public class CertificateRequestService(AppDbContext context) : ICertificateReque
     private static void ValidateCreateInput(CreateCertificateRequestInput input)
     {
         if (input.CopiesCount < 1)
-        {
             throw new ValidationException("Количество экземпляров должно быть не меньше 1.");
-        }
 
         if (string.IsNullOrWhiteSpace(input.Reason))
-        {
             throw new ValidationException("Укажите причину запроса.");
-        }
 
         if (input.Reason.Length > 1000)
-        {
             throw new ValidationException("Причина запроса не должна превышать 1000 символов.");
-        }
 
         if (input.Type == CertificateType.Custom && string.IsNullOrWhiteSpace(input.CustomTypeName))
-        {
             throw new ValidationException("Укажите название произвольной справки.");
-        }
 
         if (input.Type != CertificateType.Custom && !string.IsNullOrWhiteSpace(input.CustomTypeName))
-        {
             throw new ValidationException("Название справки указывается только для произвольного типа.");
-        }
     }
 
     private async Task EnsureEmployeeExistsAsync(int employeeId, UserRole? requiredRole = null)
@@ -225,9 +207,7 @@ public class CertificateRequestService(AppDbContext context) : ICertificateReque
             .FirstOrDefaultAsync(e => e.Id == employeeId);
 
         if (employee is null)
-        {
             throw new NotFoundException($"Сотрудник #{employeeId} не найден.");
-        }
 
         if (requiredRole is not null && employee.Role != requiredRole)
         {
