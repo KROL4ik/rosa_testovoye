@@ -1,6 +1,7 @@
 Инструкция по запуску.
 
-1. Скачать архив testovoye.zip из релизов (self-contained).
+(self-contained)
+1. Скачать архив testovoye.zip из раздела Releases в данном репозитории.
 2. Разархивировать.
 3. Запустить rosa_testovoye.exe.
 4. Открыть адрес из консоли.
